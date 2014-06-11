@@ -28,9 +28,27 @@ class Factory
         return $_instance[$identify];
 	}
 
-	static function getModel($class_name)
+	static function getModel()
 	{
+		require_once(CORE_PATH.'/core/model.php');
+		static $_instance = null;
+		if($_instance === null)
+		{	
+			$db = Factory::getDb();
+			$_instance = new Model($db);
+		}
+		return $_instance;
+	}
 
+	static function getDb()
+	{
+		require_once(CORE_PATH.'/include/dbdriver/mysql.php');
+		static $_instance = null;
+		if($_instance === null)
+		{
+			$_instance = new MysqlDb(C('db_host'), C('db_port'), C('db_user'), C('db_pass'), C('db_name'));
+		}//var_dump($_instance);die;
+		return $_instance;
 	}
 
 	static function getView()

@@ -15,7 +15,7 @@ class Session
        // get session-lifetime 
        $this->lifeTime = get_cfg_var("session.gc_maxlifetime"); 
        // open database-connection 
-       $dbHandle = @mysql_connect(C('db_host'),C('db_user'),C('db_password')); 
+       $dbHandle = @mysql_connect(C('db_host'),C('db_user'),C('db_pass')); 
        $dbSel = @mysql_select_db(C('db_name'),$dbHandle); 
        // return success 
        if(!$dbHandle || !$dbSel) 

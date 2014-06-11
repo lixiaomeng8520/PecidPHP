@@ -36,7 +36,13 @@ class Index extends Controller
 		/*$a = 'aaa';
 		$b = explode('|', $a);
 		var_dump($b);*/
-		var_dump("\n", '\n');
+		//var_dump("\n", '\n');
+
+		$model = Factory::getModel();
+
+		$ret = $model->where('user_id', 2)->get('user');
+		//$ret = $model->insert('user', array('username' => 'lxm1', 'password' => md5('111111')));
+		var_dump($ret);
 	}
 
 
