@@ -292,9 +292,20 @@ class Model
 		$this->group_by = $this->add_crase($column);
 		return $this;
 	}
+
+	public function custom_having($having)
+	{
+		$this->having .= "\n".trim($having);
+		return $this;
+	}
 	
 	public function having($col,$valor = NULL,$fetch = 'AND')
 	{
+		if((bool) trim($col) AND is_string($col) AND $valor === NULL)
+		{
+			return $this->custom_having($col);
+		}
+
 		if((bool) ! $col AND (bool) ! $valor)
 		{
 			$this->set_error("Warning: Wrong parameter in having().");

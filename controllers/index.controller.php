@@ -40,9 +40,9 @@ class Index extends Controller
 
 		$model = Factory::getModel();
 
-		$ret = $model->where('user_id', 2)->get('user');
-		//$ret = $model->insert('user', array('username' => 'lxm1', 'password' => md5('111111')));
-		var_dump($ret);
+		$ret = $model->select('username, count(username) as count')->group_by('username')->having('count > 2')->get('user');
+		//$ret = $model->insert('user', array('username' => "\n", 'password' => md5('111111')));
+		var_dump($ret, $model->last_query());
 	}
 
 
