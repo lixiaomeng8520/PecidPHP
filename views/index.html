@@ -4,6 +4,13 @@
 </head>
 <body>
 	
-	{$data.username}
+	{$data.username|truncate:2}<br>
+	{$now|date_format:Y-m-d H:i:s}
+
+	{if $data.username == '李小蒙'}
+是李小蒙
+{else}
+不是李小蒙
+	{/if}
 </body>
 </html>

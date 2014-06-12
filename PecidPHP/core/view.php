@@ -46,18 +46,18 @@ class View
 			return;
 		}*/
 
-		$out = $this->_fetch($file);
+		$out = $this->_fetch($file);//var_dump(htmlspecialchars($out));die;
 		eval('?>' . trim($out));
 	}
 
-	function _fetch($file)
+	private function _fetch($file)
 	{
 		$out = $this->_compile($file);
 
 		return $out;
 	}
 
-	function _compile($file)
+	private function _compile($file)
 	{
 		$compile = $this->_compile_dir.'/'.basename($file).'.php';
 		$file_stat = @stat($file);
@@ -73,11 +73,11 @@ class View
 			if(!file_exists($this->_compile_dir))
 			{
 				//如果编译文件所在目录不存在，则创建
-				mkdir($this->_compile_dir, 0777, true);
+				@mkdir($this->_compile_dir, 0777, true);
 			}
 
 			//写文件时锁定
-			file_put_contents($compile, $source, LOCK_EX);
+			@file_put_contents($compile, $source, LOCK_EX);
 		}
 		else
 		{
@@ -88,20 +88,57 @@ class View
 		return $source;
 	}
 
-	/*处理大括号*/
-	function _brace($str)
+	/*处理大括号 if */
+	private function _brace($str)
 	{
 		if($str{0} == '$')	//变量
 		{
 			return '<?php echo '.$this->_get_var(substr($str, 1)).'; ?>';
 		}
+		elseif($str{0} == '/') //结束标签
+		{
+			switch(substr($str, 1)) 
+			{
+				case 'if':
+					return '<?php endif;?>';
+					break;
+				
+				default:
+					# code...
+					break;
+			}
+		}
+		else
+		{
+			$str_arr = preg_split('/\s/', $str);
+			$tag = array_shift($str_arr);
+			$op = join(' ', $str_arr);
+			switch($tag) 
+			{
+				case 'if':
+					return $this->_get_if($op); break;
+
+				case 'else':
+					return '<?php else:?>'; break;
+
+				case 'elseif':
+					return '<?php elseif:?>'; break;
+
+				case 'foreach':
+					return $this->_get_foreach($op); break;
+				
+				default:
+					# code...
+					break;
+			}
+		}
 	}
 
-	function _get_var($val)
+	private function _get_var($var)
 	{
-		$arr = explode('|', $val);
-		$val = array_shift($arr);
-		$val = $this->_make_var($val);
+		$arr = explode('|', $var);
+		$var = array_shift($arr);
+		$var = $this->_make_var($var);
 
 		foreach($arr as $k => $v)
 		{
@@ -109,22 +146,51 @@ class View
 			switch($f_arr[0])
 			{
 				case 'escape':
-					
+					if($_arr[1] == 'url')
+					{
+						$var = 'urlencode('.$var.')';
+					}
+					else
+					{
+						$var = 'htmlspecialchars('.$var.')';
+					}
+					break;
+
+				case 'nl2br':
+					$var = 'nl2br('.$var.')';
+					break;
+
+				case 'truncate':
+					$var = 'msubstr('.$var.', 0, '.$f_arr[1].', \'utf-8\', true)';
+					break;
+
+				case 'strip_tags':
+					$var = 'strip_tags('.$var.')';
+					break;
+
+				case 'date_format':
+					unset($f_arr[0]);
+					$format = implode(':', $f_arr);
+					$var = 'date(\''.$format.'\', '.$var.')';
+					break;
+
+				default:
+					break;
 			}
 		}
 
-		return $ret;
+		return $var;
 	}
 	
-	function _make_var($val)
+	private function _make_var($var)
 	{
-		if(strpos($val, '.') === false)
+		if(strpos($var, '.') === false)
 		{
-			$ret = '$this->_var[\''.$val.'\']';
+			$ret = '$this->_var[\''.$var.'\']';
 		}
 		else
 		{
-			$arr = explode('.', $val);
+			$arr = explode('.', $var);
 			$first = array_shift($arr);
 			if($first == 'smarty')
 			{
@@ -141,6 +207,68 @@ class View
 		}
 //var_dump($this->_var,$ret);die;
 		return $ret;
+	}
+
+	private function _get_if($str, $elseif = false)
+	{
+		// == != > < >= <= ! % 都有的  ===   || &&      !==
+		// 共计11个
+		//preg_match_all('/\-?\d+[\.\d]+|\'[^\'|\s]*\'|"[^"|\s]*"|[\$\w\.]+|!==|===|==|!=|<>|<<|>>|<=|>=|&&|\|\||\(|\)|,|\!|\^|=|&|<|>|~|\||\%|\+|\-|\/|\*|\@|\S/', $tag_args, $match);
+		$item_arr = preg_split('/\s/', $str);
+		foreach($item_arr  as $k => $v)
+		{
+			$item = &$item_arr[$k];
+			switch($item)
+			{
+				case 'eq':
+					$item = '=='; break;
+
+				case 'ne':
+				case 'neq':
+					$item = '!='; break;
+
+				case 'gt':
+					$item = '>'; break;
+
+				case 'lt':
+					$item = '<'; break;
+
+				case 'ge':
+				case 'gte':
+					$item = '>='; break;
+
+				case 'le':
+				case 'lte':
+					$item = '<='; break;
+
+				case 'not':
+					$item = '!'; break;
+
+				case 'mod':
+					$item = '%'; break;
+
+				default:
+					if($item{0} == '$')
+					{
+						$item = $this->_get_var(substr($item, 1));
+					}
+					break;
+			}
+		}
+
+		if($elseif == true)
+		{
+			return '<?php elseif('.join(' ', $item_arr).'):?>';
+		}
+		else
+		{
+			return '<?php if('.join(' ', $item_arr).'):?>';
+		}
+	}
+
+	private function _get_foreach($str)
+	{
+		
 	}
 }
 
