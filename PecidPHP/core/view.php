@@ -39,7 +39,7 @@ class View
 
 	function display($file)
 	{
-		$file = $this->_view_dir.'/'.$file;
+		
 		/*if(!file_exists($file))
 		{
 			trigger_error('文件不存在:'.$file, E_USER_ERROR);
@@ -52,6 +52,7 @@ class View
 
 	private function _fetch($file)
 	{
+		$file = $this->_view_dir.'/'.$file;
 		$out = $this->_compile($file);
 
 		return $out;
@@ -100,8 +101,10 @@ class View
 			switch(substr($str, 1)) 
 			{
 				case 'if':
-					return '<?php endif;?>';
-					break;
+					return '<?php endif;?>'; break;
+
+				case 'foreach':
+					return '<?php endforeach;?>'; break;
 				
 				default:
 					# code...
@@ -126,10 +129,11 @@ class View
 
 				case 'foreach':
 					return $this->_get_foreach($op); break;
+
+				case 'include':
+					return $this->_fetch($op); break;
 				
-				default:
-					# code...
-					break;
+				default: break;
 			}
 		}
 	}
@@ -268,7 +272,27 @@ class View
 
 	private function _get_foreach($str)
 	{
+		//由于所有变量都被编译为 $this->_var['v'];所以key和value应该都为$this->_var['k']和$this->_var['v']
+
+		$arr = explode(' as ', $str);
 		
+		$list = trim($arr[0]);
+		$list = $this->_get_var(substr($list, 1));
+		if(strpos($arr[1], '=>') === false)	//只有value
+		{
+			$val = trim($arr[1]);
+			//$this->_foreach_key[] = '$this->_var[\''.$val.'\'] = \''.$val.'\'';
+			$str = '<?php foreach('.$list.' as $this->_var[\''.substr($val, 1).'\']):?>';
+		}
+		else //key 和 value
+		{
+			$kv_arr = explode('=>', $arr[1]);
+			$key = trim($kv_arr[0]);
+			$val = trim($kv_arr[1]);
+			$str = '<?php foreach('.$list.' as $this->_var[\''.substr($key, 1).'\'] => $this->_var[\''.substr($val, 1).'\']):?>';
+		}
+
+		return $str;
 	}
 }
 

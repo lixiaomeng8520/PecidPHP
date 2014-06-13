@@ -12,6 +12,23 @@ class Index extends Controller
 		//$this->assign('hello', 'Hello PecidPHP~~!!');
 		$this->assign('data', array('username'=>'李小蒙', 'age'=>'25'));
 		$this->assign('now', time());
+
+		$list1 = array(
+			0 => array('username' => 'lxm1', 'age' => 1),
+			1 => array('username' => 'lxm2', 'age' => 2),
+			2 => array('username' => 'lxm3', 'age' => 3),
+			3 => array('username' => 'lxm4', 'age' => 4),
+			);
+		$list2 = array(
+			0 => array('username' => 'lxm5', 'age' => 1),
+			1 => array('username' => 'lxm6', 'age' => 2),
+			2 => array('username' => 'lxm7', 'age' => 3),
+			3 => array('username' => 'lxm8', 'age' => 4),
+			);
+
+		$this->assign('list1', $list1);
+		$this->assign('list2', $list2);
+
 		$this->display('index.html');
 	}
 
@@ -47,8 +64,24 @@ class Index extends Controller
 
 		//dump($_GET['a']);
 		//file_put_contents(ROOT_PATH.'/temps/'.'a.txt', $_GET['a']);
-		$format = 'Y-m-d H:i:s';
+		/*$format = 'Y-m-d H:i:s';
 		echo date($format, time());
+		$list = array(1, 2, 3);*/
+		/*foreach($list as $k => $v)
+		{
+			dump($v);
+		}
+		else
+		{
+			dump(null);
+		}*/
+		$a = array(1, 2, 3);
+		foreach($a as $this->_var['k'] => $this->_var['v'])
+		{
+			echo $this->_var['v'].'<br>';
+		}
+
+
 	}
 
 
