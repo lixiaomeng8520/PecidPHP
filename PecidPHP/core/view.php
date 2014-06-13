@@ -37,6 +37,7 @@ class View
 		}
 	}
 
+	//file是VIEW_PATH目录下的路径，最前面不带/
 	function display($file)
 	{
 		
@@ -52,9 +53,12 @@ class View
 
 	private function _fetch($file)
 	{
-		$file = $this->_view_dir.'/'.$file;
-		$out = $this->_compile($file);
-
+		$file = $this->_view_dir.'/'.$file;//生成物理路径
+		$out = '';
+		if(file_exists($file))
+		{
+			$out = $this->_compile($file);	
+		}
 		return $out;
 	}
 
@@ -196,9 +200,32 @@ class View
 		{
 			$arr = explode('.', $var);
 			$first = array_shift($arr);
-			if($first == 'smarty')
+			if($first == 'Pecid')
 			{
-				$ret = '';
+				$second = array_shift($arr);
+				switch($second)
+				{
+					case 'get':
+						$ret = '$_GET'; break;
+
+					case 'post':
+						$ret = '$_POST'; break;
+
+					case 'request':
+						$ret = '$_REQUEST'; break;
+
+					case 'session':
+						$ret = '$_SESSION'; break;
+
+					case 'cookie':
+						$ret = '$_COOKIE'; break;
+
+					case 'env':
+						$ret = '$_ENV'; break;
+
+					case 'server':
+						$ret = '$_SERVER'; break;
+				}
 			}
 			else
 			{
