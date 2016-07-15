@@ -18,25 +18,25 @@ class PecidPHP
         require(CORE_PATH.'/core/factory.php');
 		require(CORE_PATH.'/functions.php');
 
-		/* 数据过滤 */
-        if (!get_magic_quotes_gpc())
+		/* 取消数据过滤 */
+        if (get_magic_quotes_gpc())
         {
-            $_GET   = addslashes_deep($_GET);
-            $_POST  = addslashes_deep($_POST);
-            $_COOKIE= addslashes_deep($_COOKIE);
+            $_GET   = stripcslashes_deep($_GET);
+            $_POST  = stripcslashes_deep($_POST);
+            $_COOKIE= stripcslashes_deep($_COOKIE);
         }
 
         //获取配置
         C(require(CONFIG_PATH.'/common.php'));
 
-        $controller = $_GET['_c'] ? $_GET['_c'] : 'index';
-        $action = $_GET['_a'] ? $_GET['_a'] : 'index';
+        $controller = isset($_GET['_c']) && $_GET['_c'] ? $_GET['_c'] : 'index';
+        $action = isset($_GET['_a']) && $_GET['_a'] ? $_GET['_a'] : 'index';
 
         define('CONTROLLER', ucfirst($controller));
         define('ACTION', $action);
 
-        $app = Factory::getController($controller);
-        $app->do_action($action);
+        $controller = Factory::getController($controller);
+        $controller->doAction($action);
 	}
 }
 

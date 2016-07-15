@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ALL);
 
 date_default_timezone_set('Asia/Shanghai');
 define('ROOT_PATH', dirname(__FILE__));

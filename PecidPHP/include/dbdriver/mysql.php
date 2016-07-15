@@ -1,5 +1,5 @@
 <?php
-class MysqlDb
+class MysqliDriver
 {
 	var $_db_host = '';
 	var $_db_port = 3306;

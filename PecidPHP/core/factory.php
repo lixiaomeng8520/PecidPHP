@@ -5,16 +5,13 @@
  */
 class Factory
 {
-	static function getController($class_name)
-	{
+	public static function getController($class_name){
 		static $_instance = array();
 		$identify = to_guid_string($class_name);
 
-		if(!$_instance[$identify])
-		{
+		if(!isset($_instance[$identify]) || !$_instance[$identify]){
 			$c_file = CONTROLLER_PATH.'/'.$class_name.'.controller.php';
-	        if(!is_file($c_file))
-	        {
+	        if(!is_file($c_file)){
 	        	trigger_error('文件 '.$c_file.' 没找到', E_USER_ERROR);
 	        }
 
@@ -28,20 +25,26 @@ class Factory
         return $_instance[$identify];
 	}
 
-	static function getModel()
-	{
+	public static function getMysqlDb(){
+		require_once(CORE_PATH.'/core/MysqlDb.php');
+		static $_instance = null;
+		if($_instance === null){
+			$_instance = new MysqlDb(C('db'));
+		}
+		return $_instance;
+	}
+
+	static function getModel(){
 		require_once(CORE_PATH.'/core/model.php');
 		static $_instance = null;
-		if($_instance === null)
-		{	
+		if($_instance === null){	
 			$db = Factory::getDb();
 			$_instance = new Model($db);
 		}
 		return $_instance;
 	}
 
-	static function getDb()
-	{
+	static function getDb(){
 		require_once(CORE_PATH.'/include/dbdriver/mysql.php');
 		static $_instance = null;
 		if($_instance === null)
@@ -51,12 +54,10 @@ class Factory
 		return $_instance;
 	}
 
-	static function getView()
-	{
+	static function getView(){
 		require_once(CORE_PATH.'/core/view.php');
 		static $_instance = null;
-		if($_instance === null)
-		{
+		if($_instance === null){
 			$_instance = new View();
 		}
 		return $_instance;

@@ -75,13 +75,18 @@ class Index extends Controller
 		{
 			dump(null);
 		}*/
-		$a = array(1, 2, 3);
+		/*$a = array(1, 2, 3);
 		foreach($a as $this->_var['k'] => $this->_var['v'])
 		{
 			echo $this->_var['v'].'<br>';
-		}
+		}*/
 
-
+		$db = Factory::getMysqlDb();
+		/*$sql = 'select * from %t where id in %a';
+		$ret = $db->getOne($sql, array('user', array(array(18))));*/
+		// $ret = $db->insert('user', array('username'=>'d', 'password'=>'\w'));
+		$ret = $db->update('user', array('username'=>'a', 'password'=>'\w'), 'id=%i', array(18));
+		var_dump($ret, $db->getLastSql());
 	}
 
 

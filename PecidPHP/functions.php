@@ -12,15 +12,28 @@
  * @param   mix     $value
  * @return  mix
  */
-function addslashes_deep($value)
-{
-    if (empty($value))
-    {
+function addslashes_deep($value){
+    if (empty($value)){
         return $value;
     }
-    else
-    {
+    else{
         return is_array($value) ? array_map('addslashes_deep', $value) : addslashes($value);
+    }
+}
+
+/**
+ * 递归方式的对变量中的特殊字符进行反转义
+ *
+ * @access  public
+ * @param   mix     $value
+ * @return  mix
+ */
+function stripcslashes_deep($value){
+    if (empty($value)){
+        return $value;
+    }
+    else{
+        return is_array($value) ? array_map('stripcslashes_deep', $value) : stripcslashes($value);
     }
 }
 
