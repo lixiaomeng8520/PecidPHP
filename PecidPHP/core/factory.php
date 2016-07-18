@@ -6,17 +6,19 @@
 class Factory
 {
 	public static function getController($class_name){
+		$class_name = ucfirst($class_name);
 		static $_instance = array();
 		$identify = to_guid_string($class_name);
 
 		if(!isset($_instance[$identify]) || !$_instance[$identify]){
 			$c_file = CONTROLLER_PATH.'/'.$class_name.'.controller.php';
 	        if(!is_file($c_file)){
-	        	trigger_error('文件 '.$c_file.' 没找到', E_USER_ERROR);
+	        	trigger_error('file '.$c_file.' not found', E_USER_ERROR);
 	        }
 
 	        require($c_file);
 
+	        $class_name .= 'Controller';
 	        $controller = new $class_name();
 
 	        $_instance[$identify] = $controller;	
@@ -25,42 +27,53 @@ class Factory
         return $_instance[$identify];
 	}
 
-	public static function getMysqlDb(){
+	public static function getMysqlDb($config){
 		require_once(CORE_PATH.'/core/MysqlDb.php');
 		static $_instance = null;
 		if($_instance === null){
-			$_instance = new MysqlDb(C('db'));
+			$_instance = new MysqlDb($config);
 		}
 		return $_instance;
 	}
 
-	static function getModel(){
-		require_once(CORE_PATH.'/core/model.php');
-		static $_instance = null;
-		if($_instance === null){	
-			$db = Factory::getDb();
-			$_instance = new Model($db);
+
+	static function getModel($class_name){
+		$class_name = ucfirst($class_name);
+		require_once(CORE_PATH.'/core/Model.php');
+		static $_instance = array();
+		$identify = to_guid_string($class_name);
+
+		if(!isset($_instance[$identify]) || !$_instance[$identify]){
+			$c_file = MODEL_PATH.'/'.$class_name.'.model.php';
+	        if(!is_file($c_file)){
+	        	trigger_error('file '.$c_file.' not found', E_USER_ERROR);
+	        }
+
+	        require($c_file);
+
+	        $class_name .= 'Model';
+	        $model = new $class_name();
+
+	        $_instance[$identify] = $model;	
 		}
-		return $_instance;
+		
+        return $_instance[$identify];
 	}
 
-	static function getDb(){
-		require_once(CORE_PATH.'/include/dbdriver/mysql.php');
-		static $_instance = null;
-		if($_instance === null)
-		{
-			$_instance = new MysqlDb(C('db_host'), C('db_port'), C('db_user'), C('db_pass'), C('db_name'));
-		}//var_dump($_instance);die;
-		return $_instance;
-	}
-
-	static function getView(){
-		require_once(CORE_PATH.'/core/view.php');
-		static $_instance = null;
-		if($_instance === null){
-			$_instance = new View();
+	static function getView($file, $data = array(), $output = true){
+		extract($data);
+		$file = VIEW_PATH.'/'.$file.'.php';
+		if(!is_file($file)){
+			trigger_error('view not found: '.$file, E_USER_ERROR);
 		}
-		return $_instance;
+		if($output){
+			include $file;
+		}else{
+			ob_start();
+			include View_PATH.'/'.$file;
+        	$out = ob_get_clean();
+        	return $out;
+		}
 	}
 }
 ?>

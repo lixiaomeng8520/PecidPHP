@@ -7,7 +7,7 @@ class MysqlDb {
 	private $_all_sql = array();
 	private $_last_sql = '';
 
-	private $_db_prefix = '';
+	private $_db_pref = '';
 	private $_db_host = '';
 	private $_db_port = '';
 	private $_db_user = '';
@@ -28,6 +28,16 @@ class MysqlDb {
 		return self::$_instance;
 	}*/
 
+	/**
+	 * $config = array(
+	 *	'pref'	=>	'',
+	 *	'host'	=>	'127.0.0.1',
+	 *	'port'	=>	'3306',
+	 *	'user'	=>	'root',
+	 *	'pass'	=>	'root',
+	 *	'dbnm'	=>	'test',
+	 *	'char'	=>	'utf8',);
+	 */
 	public function __construct($config){
 		$this->_init_escape_string_func();
 		$this->_init_config($config);
@@ -75,7 +85,7 @@ class MysqlDb {
 	/*---------------------------start opdb--------------------------------------------*/
 
 	public function getAll($sql, $args = array()){
-		$query = $this->_query($sql, $args);
+		$query = $this->query($sql, $args);
 		$ret = array();
 		while($row = mysql_fetch_assoc($query)){
 			$ret[] = $row;
@@ -85,7 +95,7 @@ class MysqlDb {
 	}
 
 	public function getFirst($sql, $args = array()){
-		$query = $this->_query($sql, $args);
+		$query = $this->query($sql, $args);
 		$ret = mysql_fetch_assoc($query);
 		mysql_free_result($query);
 		return $ret ? $ret : array();
@@ -97,17 +107,21 @@ class MysqlDb {
 	}
 
 	public function insert($table, $data){
-		$set_str = $this->_implodeArray($data);
 		$table = $this->_parseTable($table);
+		$set_str = $this->_implodeArray($data);
 		$sql = 'insert into '.$table.' '.$set_str;
-		return $this->_query($sql);
+		return $this->query($sql);
 	}
 
 	public function update($table, $data, $where, $args){
 		$table = $this->_parseTable($table);
-		$set_str = $this->_implodeArray($data);
+		if(is_string($data)){
+			$set_str = 'set '.$data;
+		}elseif(is_array($data)){
+			$set_str = $this->_implodeArray($data);
+		}
 		$sql = 'update '.$table.' '.$set_str.' where '.$where;
-		return $this->_query($sql, $args);
+		return $this->query($sql, $args);
 	}
 
 	private function _implodeArray($data){
@@ -124,14 +138,14 @@ class MysqlDb {
 	}
 
 	/*not return false*/
-	private function _query($sql, $args = array()){
+	public function query($sql, $args = array()){
 		$sql = $this->_parseSql($sql, $args);
 		$this->_all_sql[] = $sql;
 		$this->_last_sql = $sql;
 
 		$query = mysql_query($sql, $this->_link);
 		if(!$query){
-			trigger_error('mysql_query error, '.mysql_error($this->_link), E_USER_ERROR);
+			trigger_error('mysql_query error, '.mysql_error($this->_link).'<br>'.$sql, E_USER_ERROR);
 		}
 
 		return $query;
@@ -170,12 +184,12 @@ class MysqlDb {
 					case 's':
 						$ret .= $this->_parseValue($args[$p]);
 						break;
-					case 'i':
+/*					case 'i':
 						$ret .= intval($args[$p]);
 						break;
 					case 'f':
 						$ret .= floatval($args[$p]);
-						break;
+						break;*/
 					case 'a':
 						$ret .= $this->_parseValue($args[$p]);
 						break;
@@ -198,8 +212,8 @@ class MysqlDb {
 		if(is_int($value) || is_float($value)){
 			return $value;
 		}elseif(is_string($value)){
-			eval('$ret= @'.$this->_escape_func.'($value);');
-			$ret = '\''.$ret.'\'';
+			$func = $this->_escape_func;
+			$ret = '\''.@$func($value).'\'';
 		}elseif(is_array($value)){
 			foreach($value as $k => $v){
 				$value[$k] = $this->_parseValue($v);	
@@ -213,7 +227,7 @@ class MysqlDb {
 		if(!is_string($table) || empty($table = trim($table))){
 			trigger_error('table name is invalid');
 		}
-		return $this->_db_prefix.$table;
+		return $this->_db_pref.$table;
 	}
 
 	/*-----------------------------end parseSql----------------------------------------*/

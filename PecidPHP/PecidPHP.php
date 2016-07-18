@@ -8,14 +8,14 @@ class PecidPHP
 	static function start()
 	{
         define('CORE_PATH', dirname(__FILE__));
-        define('CONTROLLER_PATH', ROOT_PATH.'/controllers');
-        define('VIEW_PATH', ROOT_PATH.'/views');
-        define('CONFIG_PATH', ROOT_PATH.'/configs');
-        define('TEMP_PATH', ROOT_PATH.'/temps');
+        define('CONFIG_PATH', ROOT_PATH.'/config');
+        define('CONTROLLER_PATH', ROOT_PATH.'/controller');
+        define('MODEL_PATH', ROOT_PATH.'/model');
+        define('VIEW_PATH', ROOT_PATH.'/view');
+        define('TEMP_PATH', ROOT_PATH.'/temp');
 
-		require(CORE_PATH.'/core/controller.php');
-		require(CORE_PATH.'/core/model.php');
-        require(CORE_PATH.'/core/factory.php');
+		require(CORE_PATH.'/core/Controller.php');
+        require(CORE_PATH.'/core/Factory.php');
 		require(CORE_PATH.'/functions.php');
 
 		/* 取消数据过滤 */
@@ -32,8 +32,8 @@ class PecidPHP
         $controller = isset($_GET['_c']) && $_GET['_c'] ? $_GET['_c'] : 'index';
         $action = isset($_GET['_a']) && $_GET['_a'] ? $_GET['_a'] : 'index';
 
-        define('CONTROLLER', ucfirst($controller));
-        define('ACTION', $action);
+        /*define('CONTROLLER', ucfirst($controller));
+        define('ACTION', $action);*/
 
         $controller = Factory::getController($controller);
         $controller->doAction($action);

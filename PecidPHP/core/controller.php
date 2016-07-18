@@ -1,8 +1,9 @@
 <?php
+/**
+ * base controller
+ */
 class Controller
 {
-	//var $_view = null;	//视图
-
 	function __construct(){
 		// $this->_init_session();
 	}
@@ -14,16 +15,6 @@ class Controller
 		else{
 			trigger_error('action'.$action.'未找到', E_USER_ERROR);
 		}
-	}
-
-	function assign($k, $v = null){
-		$view = Factory::getView();
-		$view->assign($k, $v);
-	}
-
-	function display($v){
-		$view = Factory::getView($v);
-		$view->display($v);
 	}
 
 	/**
