@@ -52,47 +52,30 @@ function to_guid_string($mix) {
 }
 
 /**
- *    导入一个类
- *
- *    @author    Garbin
- *    @return    void
- */
-function import($class)
-{
-    require_once(CORE_PATH.'/include/'.$class.'.php');
-}
-
-/**
  *  设置和获取配置信息
  *  @author lxm
  */
-function C($k = null, $v = null)
-{
+function C($k = null, $v = null){
     static $_config = array();
     if($k === null) return $_config;
 
-    if(is_string($k))
-    {
-        if($v === null)
-        {
+    if(is_string($k)){
+        if($v === null){
             return $_config[$k];
         }
-        else
-        {
+        else{
             $_config[$k] = $v;
         }
     }
 
-    if(is_array($k))
-    {
+    if(is_array($k)){
         return $_config = array_merge($_config, array_change_key_case($k));
     }
 
     return null;
 }
 
-function dump($var)
-{
+function dump($var){
     echo '<pre>';
     var_dump($var);
     echo '</pre>';

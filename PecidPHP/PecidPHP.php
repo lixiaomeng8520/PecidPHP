@@ -16,7 +16,7 @@ class PecidPHP
 
 		require(CORE_PATH.'/core/Controller.php');
         require(CORE_PATH.'/core/Factory.php');
-		require(CORE_PATH.'/functions.php');
+		require(CORE_PATH.'/include/functions.php');
 
 		/* 取消数据过滤 */
         if (get_magic_quotes_gpc())

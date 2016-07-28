@@ -8,9 +8,8 @@ class Factory
 	public static function getController($class_name){
 		$class_name = ucfirst($class_name);
 		static $_instance = array();
-		$identify = to_guid_string($class_name);
 
-		if(!isset($_instance[$identify]) || !$_instance[$identify]){
+		if(!isset($_instance[$class_name]) || !$_instance[$class_name]){
 			$c_file = CONTROLLER_PATH.'/'.$class_name.'.controller.php';
 	        if(!is_file($c_file)){
 	        	trigger_error('file '.$c_file.' not found', E_USER_ERROR);
@@ -21,10 +20,10 @@ class Factory
 	        $class_name .= 'Controller';
 	        $controller = new $class_name();
 
-	        $_instance[$identify] = $controller;	
+	        $_instance[$class_name] = $controller;	
 		}
 		
-        return $_instance[$identify];
+        return $_instance[$class_name];
 	}
 
 	public static function getMysqlDb($config){
@@ -37,13 +36,12 @@ class Factory
 	}
 
 
-	static function getModel($class_name){
+	public static function getModel($class_name){
 		$class_name = ucfirst($class_name);
 		require_once(CORE_PATH.'/core/Model.php');
 		static $_instance = array();
-		$identify = to_guid_string($class_name);
 
-		if(!isset($_instance[$identify]) || !$_instance[$identify]){
+		if(!isset($_instance[$class_name]) || !$_instance[$class_name]){
 			$c_file = MODEL_PATH.'/'.$class_name.'.model.php';
 	        if(!is_file($c_file)){
 	        	trigger_error('file '.$c_file.' not found', E_USER_ERROR);
@@ -54,13 +52,13 @@ class Factory
 	        $class_name .= 'Model';
 	        $model = new $class_name();
 
-	        $_instance[$identify] = $model;	
+	        $_instance[$class_name] = $model;	
 		}
 		
-        return $_instance[$identify];
+        return $_instance[$class_name];
 	}
 
-	static function getView($file, $data = array(), $output = true){
+	public static function getView($file, $data = array(), $output = true){
 		extract($data);
 		$file = VIEW_PATH.'/'.$file.'.php';
 		if(!is_file($file)){
