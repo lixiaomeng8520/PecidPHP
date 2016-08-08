@@ -4,7 +4,7 @@
  */ 
 class Model{
 
-	private $_db = null;
+	protected $_db = null;
 
 	public function __construct(){
 		$this->_db = Factory::getMysqlDb(C('db'));
