@@ -189,10 +189,10 @@ class MysqlDb {
 						break;
 					case 'f':
 						$ret .= floatval($args[$p]);
-						break;*/
+						break;
 					case 'a':
 						$ret .= $this->_parseValue($args[$p]);
-						break;
+						break;*/
 					default:
 						trigger_error('not valid placeholder'.$next, E_USER_ERROR);
 						break;
