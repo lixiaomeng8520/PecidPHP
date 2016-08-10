@@ -1,13 +1,16 @@
 <?php
+if(!defined('ENV')){ exit('access deny'); }
 /**
  * base model, provides some common functions
  */ 
 class Model{
 
 	protected $_db = null;
+	protected $_table = '';
+	protected $_pk = '';
 
 	public function __construct(){
-		$this->_db = Factory::getMysqlDb(C('db'));
+		$this->_db = D(Conf('db'));
 	}
 
 	public function get($id){

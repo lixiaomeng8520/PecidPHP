@@ -1,5 +1,7 @@
 <?php
-$common = array(
+if(!defined('ENV')){ exit('access deny'); }
+
+return array(
 	'db'	=>	array(
 		'pref'	=>	'',
 		'host'	=>	'127.0.0.1',
@@ -10,7 +12,4 @@ $common = array(
 		'char'	=>	'utf8',
 	),
 );
-
-// $db = require('db.php');
-return $common;
 ?>

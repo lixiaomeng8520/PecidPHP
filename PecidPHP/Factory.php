@@ -27,9 +27,9 @@ class Factory
 	}
 
 	public static function getMysqlDb($config){
-		require_once(CORE_PATH.'/core/MysqlDb.php');
 		static $_instance = null;
 		if($_instance === null){
+			require_once(CORE_PATH.'/core/MysqlDb.php');
 			$_instance = new MysqlDb($config);
 		}
 		return $_instance;
@@ -40,7 +40,6 @@ class Factory
 		$class_name = ucfirst($class_name);
 		require_once(CORE_PATH.'/core/Model.php');
 		static $_instance = array();
-
 		if(!isset($_instance[$class_name]) || !$_instance[$class_name]){
 			$c_file = MODEL_PATH.'/'.$class_name.'.model.php';
 	        if(!is_file($c_file)){

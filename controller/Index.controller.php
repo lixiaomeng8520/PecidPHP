@@ -1,5 +1,9 @@
 <?php
-class IndexController extends Controller
+if(!defined('ENV')){ exit('access deny'); }
+
+require 'Front.controller.php';
+
+class IndexController extends FrontController
 {
 	function __construct()
 	{
@@ -87,11 +91,11 @@ class IndexController extends Controller
 		// $ret = $db->insert('user', array('username'=>'d', 'password'=>'\w'));
 		// $ret = $db->update('user', array('username'=>'a', 'password'=>'\w'), 'id=%i', array(18));
 		
-		$m_user = Factory::getModel('User');
+		$m_user = M('user');
 		$m_user->test();
 
 
-		Factory::getView('test', array('ret'=>$ret));
+		// Factory::getView('test', array('ret'=>$ret));
 	}
 
 

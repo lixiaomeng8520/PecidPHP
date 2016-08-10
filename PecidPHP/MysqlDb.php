@@ -1,4 +1,5 @@
 <?php 
+if(!defined('ENV')){ exit('access deny'); }
 class MysqlDb {
 	private $_type = 'mysql';
 	private $_link;
