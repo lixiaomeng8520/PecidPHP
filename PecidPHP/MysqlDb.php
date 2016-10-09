@@ -1,5 +1,6 @@
 <?php 
 if(!defined('ENV')){ exit('access deny'); }
+
 class MysqlDb {
 	private $_type = 'mysql';
 	private $_link;
@@ -66,6 +67,9 @@ class MysqlDb {
 	}
 
 	private function _init_config($config){
+		if(empty($config) || !is_array($config)){
+			trigger_error('db config error', E_USER_ERROR);
+		}
 		foreach($config as $k => $v){
 			$kn = '_db_'.$k;
 			$this->$kn = $v;
@@ -75,7 +79,7 @@ class MysqlDb {
 	private function _init_db(){
 		$this->_link = @mysql_connect($this->_db_host.':'.$this->_db_port, $this->_db_user, $this->_db_pass);
 		if(!$this->_link){
-			trigger_error('conn error', E_USER_ERROR);
+			trigger_error('conn error: '.mysql_error(), E_USER_ERROR);
 		}
 		mysql_query('set names '.$this->_db_char, $this->_link);
 		mysql_select_db($this->_db_dbnm, $this->_link);
@@ -99,7 +103,7 @@ class MysqlDb {
 		$query = $this->query($sql, $args);
 		$ret = mysql_fetch_assoc($query);
 		mysql_free_result($query);
-		return $ret ? $ret : array();
+		return $ret ? $ret : null;
 	}
 
 	public function getOne($sql, $args = array()){
@@ -121,8 +125,13 @@ class MysqlDb {
 		}elseif(is_array($data)){
 			$set_str = $this->_implodeArray($data);
 		}
+		$where = $this->_parseSql($where, $args);
 		$sql = 'update '.$table.' '.$set_str.' where '.$where;
 		return $this->query($sql, $args);
+	}
+
+	public function getInsertId() {
+		return ($id = mysql_insert_id($this->_link)) >= 0 ? $id : $this->getOne("select last_insert_id()");
 	}
 
 	private function _implodeArray($data){
@@ -140,7 +149,9 @@ class MysqlDb {
 
 	/*not return false*/
 	public function query($sql, $args = array()){
-		$sql = $this->_parseSql($sql, $args);
+		if(strpos($sql, 'update') !== 0 && strpos($sql, 'insert') !== 0){
+			$sql = $this->_parseSql($sql, $args);	
+		}
 		$this->_all_sql[] = $sql;
 		$this->_last_sql = $sql;
 
@@ -220,6 +231,8 @@ class MysqlDb {
 				$value[$k] = $this->_parseValue($v);	
 			}
 			$ret = '('.implode(',', $value).')';
+		}else{
+			trigger_error('value is not valid '.gettype($value), E_USER_ERROR);
 		}
 		return $ret;
 	}

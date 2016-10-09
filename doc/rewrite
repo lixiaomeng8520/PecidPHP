@@ -1,0 +1,2 @@
+rewrite ^([^\.]*)/act/(.+)$ $1/index.php?_c=Index&_a=act&aid=$2 last;
+rewrite ^([^\.]*)/player/(.+)$ $1/index.php?_c=Index&_a=player&pid=$2 last;
