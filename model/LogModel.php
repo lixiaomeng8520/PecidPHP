@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class LogModel extends Model{
+class LogModel extends PC_Model{
 	protected $_pk = 'lid';
 	protected $_table = 'log';
 

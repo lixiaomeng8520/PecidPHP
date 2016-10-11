@@ -1,7 +1,7 @@
 <?php 
 if(!defined('ENV')){ exit('access deny'); }
 
-class BaseController extends Controller{
+class BaseController extends PC_Controller{
 	protected $_no_login_action = array();
 	protected $_admin = null;
 	protected $_redirect = array();

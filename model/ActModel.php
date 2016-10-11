@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class ActModel extends Model{
+class ActModel extends PC_Model{
 	protected $_pk = 'aid';
 	protected $_table = 'act';
 

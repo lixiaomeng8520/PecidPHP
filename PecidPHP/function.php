@@ -231,7 +231,7 @@ function thumb_url($src, $w = 640){
 }
 
 // 加载扩展类
-function lib($class, $is_singleton = true, $config = array()){
+function lib($class, $config = array(), $is_singleton = true){
     if(substr($class, 0, 3) === 'PC_'){
         require_once CORE_PATH.'/lib/'.$class.'.php';
         if($is_singleton){

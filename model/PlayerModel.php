@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class PlayerModel extends Model{
+class PlayerModel extends PC_Model{
 	protected $_pk = 'pid';
 	protected $_table = 'player';
 	protected $_fields = array('pid', 'aid', 'number', 'mobile', 'name', 'num', 'status', 'cover', 'gallery', 'desc', 'createtime');

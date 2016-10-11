@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class UserModel extends Model{
+class UserModel extends PC_Model{
 	protected $_pk = 'uid';
 	protected $_table = 'user';
 

@@ -2,7 +2,7 @@
 /**
  * base controller
  */
-class Controller
+class PC_Controller
 {
 	function __construct(){
 		// $this->_init_session();
@@ -11,8 +11,7 @@ class Controller
 	function doAction($action){
 		if(method_exists($this, $action)){
 			$this->$action();
-		}
-		else{
+		}else{
 			trigger_error('action '.$action.' not found', E_USER_ERROR);
 		}
 	}

@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class VoteModel extends Model{
+class VoteModel extends PC_Model{
 	// protected $_pk = 'aid';
 	protected $_table = 'vote';
 

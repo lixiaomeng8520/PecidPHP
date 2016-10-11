@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class AdminModel extends Model{
+class AdminModel extends PC_Model{
 	protected $_pk = 'adminid';
 	protected $_table = 'admin';
 	protected $_fields = array('adminid', 'adminname', 'password');

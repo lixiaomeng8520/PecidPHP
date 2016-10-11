@@ -1,7 +1,7 @@
 <?php
 if(!defined('ENV')){ exit('access deny'); }
 
-class Model{
+class PC_Model{
 
 	protected $_db = null;
 	protected $_table = '';

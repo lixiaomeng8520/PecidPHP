@@ -1,5 +1,5 @@
 <?php
-if(!defined('ENV')){ exit('access deny'); }
+// if(!defined('ENV')){ exit('access deny'); }
 
 function __autoload($name){
     PecidPHP::autoLoad($name);
@@ -7,6 +7,8 @@ function __autoload($name){
 
 set_error_handler('PecidPHP::errorHandler');
 // register_shutdown_function('PecidPHP::trace');
+
+PecidPHP::start();
 
 /**
  *	系统入口文件
@@ -16,43 +18,45 @@ class PecidPHP
 {
 	public static function start()
 	{  
+        // 定义环境
+        isset($_SERVER['env']) && define('ENV', $_SERVER['env']);
         $env_arr = array('dev', 'test', 'online');
-        if(defined('ENV') && !in_array(ENV, $env_arr)){
+        if(!defined('ENV') || !in_array(ENV, $env_arr)){
             trigger_error('ENV must be one of [dev, test, online]', E_USER_ERROR);
-        }elseif(!defined('ENV')){
-            trigger_error('not defined ENV', E_USER_ERROR);
         }
 
+        // 根据不同环境输出不同错误信息
         if(ENV == 'dev' || ENV == 'test'){
             ini_set('display_errors', 'on');
             error_reporting(-1);
         }else{
-            // ini_set('display_errors', 'on');
-            // error_reporting(E_ALL);
             ini_set('display_errors', 'off');
         }
-        
-        date_default_timezone_set('Asia/Shanghai');
-        session_start();
-        
+
+        // 不开启magic_quotes_gpc
         if(get_magic_quotes_gpc()){
             trigger_error('please close magic_quotes_gpc', E_USER_ERROR);
         }
 
+        // 定义入口模块常量
         $pathinfo = pathinfo($_SERVER['SCRIPT_FILENAME']);
         define('MODULE', $pathinfo['filename']);
+
+        // 定义路径常量
         define('ROOT_PATH', dirname($_SERVER['SCRIPT_FILENAME']));
         define('CORE_PATH', dirname(__FILE__));
         define('CONFIG_PATH', ROOT_PATH.'/config');
+        define('CONTROLLER_PATH', defined('MODULE') ? ROOT_PATH.'/controller/'.MODULE : ROOT_PATH.'/controller');
+        define('DATA_PATH', ROOT_PATH.'/data');
+        define('INCLUDE_PATH', ROOT_PATH.'/include');
+        define('MODEL_PATH', ROOT_PATH.'/model');
+        define('PUBLIC_PATH', ROOT_PATH.'/public');
+        define('VIEW_PATH', ROOT_PATH.'/view');
 
-        require(CORE_PATH.'/Controller.php');
-        require(CORE_PATH.'/Model.php');
-        require(CORE_PATH.'/PC_Lib.php');
-        require(CORE_PATH.'/MysqlDb.php');
-        require(CORE_PATH.'/View.php');
-        require(CORE_PATH.'/function.php');//debug($_SERVER);
+        // 加载核心方法文件
+        require(CORE_PATH.'/function.php');
 
-
+        // 加载配置文件，系统核心，项目config目录下对应环境配置和其他配置
         Conf(require(CORE_PATH.'/config.php'));
         foreach(scandir(CONFIG_PATH) as $file){
             if($file == '.' || $file == '..'){
@@ -64,19 +68,12 @@ class PecidPHP
             }
         }
 
-        define('CONTROLLER_PATH', defined('MODULE') ? ROOT_PATH.'/controller/'.MODULE : ROOT_PATH.'/controller');
-        define('MODEL_PATH', ROOT_PATH.'/model');
-        define('VIEW_PATH', ROOT_PATH.'/view');
-        define('TEMP_PATH', ROOT_PATH.'/temp');
-        define('INCLUDE_PATH', ROOT_PATH.'/include');
-        define('PUBLIC_PATH', ROOT_PATH.'/public');
-        define('DATA_PATH', ROOT_PATH.'/data');
-        define('UPLOAD_PATH', Conf('upload_dir') ? DATA_PATH.'/'.Conf('upload_dir') : DATA_PATH);
-
+        // 定义请求类型常量
         define('IS_GET', $_SERVER['REQUEST_METHOD'] == 'GET' ? true : false);
         define('IS_POST', $_SERVER['REQUEST_METHOD'] == 'POST' ? true : false);
         define('IS_AJAX', isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false);
 
+        // 定义URL常量
         define('HTTP', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http");
         define('SITE_URL', HTTP.'://'.$_SERVER['HTTP_HOST']);
         define('SCRIPT_URL', SITE_URL.$_SERVER['SCRIPT_NAME']);
@@ -84,18 +81,26 @@ class PecidPHP
         define('REFERER_URL', isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
         define('PUBLIC_URL', SITE_URL.'/public');
         define('DATA_URL', SITE_URL.'/data');
-        define('UPLOAD_URL', Conf('upload_dir') ? DATA_URL.'/'.Conf('upload_dir') : DATA_URL);
-        define('CLIENT_IP', get_client_ip());//debug(DATA_URL);
+
+        // 定义一些通用常量
+        define('CLIENT_IP', get_client_ip());
         define('TIMESTAMP', $_SERVER['REQUEST_TIME']);
-            
-        $controller = isset($_GET['_c']) && $_GET['_c'] ? ucfirst($_GET['_c']) : 'Index';
-        $action = isset($_GET['_a']) && $_GET['_a'] ? $_GET['_a'] : 'index';
 
-        define('CONTROLLER', $controller);
-        define('ACTION', $action);
+        // 定义时区
+        date_default_timezone_set('Asia/Shanghai');
+        session_start();
+        
+        // 包含核心文件
+        require(CORE_PATH.'/PC_Controller.php');
+        require(CORE_PATH.'/PC_Model.php');
+        require(CORE_PATH.'/PC_Lib.php');
+        
+        // 定义当前controller和action常量
+        define('CONTROLLER', isset($_GET['_c']) && $_GET['_c'] ? ucfirst($_GET['_c']) : 'Index');
+        define('ACTION', isset($_GET['_a']) && $_GET['_a'] ? $_GET['_a'] : 'index');
 
-        $controller = C($controller);
-        $controller->doAction($action);
+        // 执行action
+        C(CONTROLLER)->doAction(ACTION);
 	}
 
     public static function autoLoad($file){
@@ -158,11 +163,10 @@ class PecidPHP
             }
             $table .= '</tbody></table>';
             echo $table;
-            exit();
         }else{
             echo '<p>'.$levels[$type].' '.$msg.' '.$file.' '.$line.'</p>';
         }
-        
+        exit();
     }
 }
 

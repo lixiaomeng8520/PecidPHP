@@ -43,7 +43,7 @@ class PC_Mysql extends PC_Lib{
 	 *	'char'	=>	'utf8',);
 	 */
 	public function __construct($config){
-		parent::__construct();
+		parent::__construct($config);
 		$this->_init_escape_string_func();
 		$this->_init_db();
 	}
