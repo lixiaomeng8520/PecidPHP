@@ -18,15 +18,11 @@ class PC_Upload extends PC_Lib{
 		}
 		$this->_real_upload_dir = DATA_PATH.'/'.$this->_config['upload_dir'];
 		if(!is_dir($this->_real_upload_dir)){
-			trigger_error('上传目录不存在', E_USER_ERROR);
-		}
-		if(!is_readable($this->_real_upload_dir)){
-			trigger_error('上传目录不可读', E_USER_ERROR);
+			mkdir($this->_real_upload_dir, 0755, true);
 		}
 		if(!is_writable($this->_real_upload_dir)){
 			trigger_error('上传目录不可写', E_USER_ERROR);
 		}
-
 	}
 
 	// 执行上传,目前是单个上传

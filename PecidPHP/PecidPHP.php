@@ -53,6 +53,10 @@ class PecidPHP
         define('PUBLIC_PATH', ROOT_PATH.'/public');
         define('VIEW_PATH', ROOT_PATH.'/view');
 
+        if(!is_writable(DATA_PATH)){
+            trigger_error('data目录没有写权限', E_USER_ERROR);
+        }
+
         // 加载核心方法文件
         require(CORE_PATH.'/function.php');
 
