@@ -9,8 +9,9 @@ class PC_Model{
 	protected $_fields = array();
 	protected $_validator = array();
 
-	public function __construct(){
-		$this->_db = lib('PC_Mysql');
+	public function __construct($db){
+		$this->_db = $db;
+		
 	}
 
 	protected function _filter_fields(& $data){

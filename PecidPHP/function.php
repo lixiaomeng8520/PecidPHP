@@ -1,28 +1,19 @@
 <?php 
 if(!defined('ENV')){ exit('access deny'); }
 
-/// get and set config
-function Conf($k = null, $v = null){
+/// 设置和获取config。
+/// 如果k是array，则是设置。如果k是string，则是返回。不存在就返回null
+function Conf($k){
     static $_config = array();
-    if($k === null) return $_config;
-
     if(is_string($k)){
-        if($v === null){
-            if(!isset($_config[$k])){
-                return null;
-                // trigger_error('config key not found: '.$k, E_USER_ERROR);
-            }
+        if(isset($_config[$k])){
             return $_config[$k];
+        }else{
+            return null;
         }
-        else{
-            $_config[$k] = $v;
-        }
-    }
-
-    if(is_array($k)){
+    }elseif(is_array($k)){
         return $_config = array_merge($_config, $k);
     }
-    return null;
 }
 
 /// get controller instance
@@ -57,20 +48,17 @@ function C($class){
 // }
 
 /// get model instance
-function M($class){
+function M($class, $db_driver = '', $db_config = array()){
     $class = ucfirst($class);
     static $_instance = array();
     if(!isset($_instance[$class]) || !$_instance[$class]){
-        // $c_file = MODEL_PATH.'/'.$class.'Model.php';
-        // if(!is_file($c_file)){
-        //     trigger_error('file '.$c_file.' not found', E_USER_ERROR);
-        // }
-
-        // require($c_file);
-
         $class .= 'Model';
-        $model = new $class();
-
+        // 获取DB实例
+        $db_driver = $db_driver ? $db_driver : Conf('db_driver');
+        $db_config = $db_config ? $db_config : Conf($db_driver);
+        
+        $db = lib($db_driver, $db_config);
+        $model = new $class($db);
         $_instance[$class] = $model;   
     }
     
@@ -230,19 +218,31 @@ function thumb_url($src, $w = 640){
     return $url;
 }
 
-// 加载扩展类
+// 加载扩展类.优先加载应用程序的，如果没有，则加载核心的
 function lib($class, $config = array(), $is_singleton = true){
-    if(substr($class, 0, 3) === 'PC_'){
-        require_once CORE_PATH.'/lib/'.$class.'.php';
-        if($is_singleton){
-            static $_instance = array();
-            if(!isset($_instance[$class])){
-                $_instance[$class] = new $class($config);
-            }
-            return $_instance[$class];
-        }else{
-            return new $class($config);
+    // 判断类所在位置
+    if(is_file(LIB_PATH.'/'.$class.'.php')){
+        $path = LIB_PATH.'/'.$class.'.php';
+    }elseif(is_file(CORE_PATH.'/lib/'.'PC_'.$class.'.php')){
+        $class = 'PC_'.$class;
+        $path = CORE_PATH.'/lib/'.$class.'.php';
+    }else{
+        trigger_error('文件 '.$class.' 找不到', E_USER_ERROR);
+    }
+
+    require_once($path);
+
+    // 判断是否单例
+    if($is_singleton){
+        static $_instance = array();
+        if(!isset($_instance[$class])){
+            $config_key = substr($class, 3);
+            $config = $config ? $config : (Conf($config_key) ? Conf($config_key) : array());
+            $_instance[$class] = new $class($config);
         }
+        return $_instance[$class];
+    }else{
+        return new $class($config);
     }
     
 }

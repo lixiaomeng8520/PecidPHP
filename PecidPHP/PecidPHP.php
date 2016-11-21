@@ -5,6 +5,7 @@ function __autoload($name){
     PecidPHP::autoLoad($name);
 }
 
+// 这里的捕获只由error_reporting确定，跟display_errors无关。
 set_error_handler('PecidPHP::errorHandler');
 // register_shutdown_function('PecidPHP::trace');
 
@@ -27,10 +28,11 @@ class PecidPHP
 
         // 根据不同环境输出不同错误信息
         if(ENV == 'dev' || ENV == 'test'){
-            ini_set('display_errors', 'on');
+            ini_set('display_errors', 'On');
             error_reporting(-1);
         }else{
-            ini_set('display_errors', 'off');
+            ini_set('display_errors', 'On');
+            error_reporting(0);
         }
 
         // 不开启magic_quotes_gpc
@@ -49,6 +51,7 @@ class PecidPHP
         define('CONTROLLER_PATH', defined('MODULE') ? ROOT_PATH.'/controller/'.MODULE : ROOT_PATH.'/controller');
         define('DATA_PATH', ROOT_PATH.'/data');
         define('INCLUDE_PATH', ROOT_PATH.'/include');
+        define('LIB_PATH', ROOT_PATH.'/lib');
         define('MODEL_PATH', ROOT_PATH.'/model');
         define('PUBLIC_PATH', ROOT_PATH.'/public');
         define('VIEW_PATH', ROOT_PATH.'/view');

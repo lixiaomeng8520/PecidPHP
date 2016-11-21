@@ -109,6 +109,25 @@ class TestController extends PC_Controller{
 		}
 		
 	}
+
+	// http://p.lxm.cn/index.php?_c=Test&_a=testModel
+	public function testModel(){
+		
+		$m_user = M('User');
+
+		debug($m_user);
+	}
+
+	public function testPagination(){
+		$pagination = lib('Pagination');
+		$pagination->show(11, 101);
+	}
+
+	public function testMysql(){
+		$db = lib('Db');
+		$sql = $db->_parse_sql('select * from table where id = ? and uid in ?', array(array(10, 11)));
+		debug($sql);
+	}
 }
 
 ?>
