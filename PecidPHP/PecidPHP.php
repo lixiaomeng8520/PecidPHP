@@ -6,7 +6,7 @@ function __autoload($name){
 }
 
 // 这里的捕获只由error_reporting确定，跟display_errors无关。
-set_error_handler('PecidPHP::errorHandler');
+// set_error_handler('PecidPHP::errorHandler');
 // register_shutdown_function('PecidPHP::trace');
 
 PecidPHP::start();
@@ -31,7 +31,7 @@ class PecidPHP
             ini_set('display_errors', 'On');
             error_reporting(-1);
         }else{
-            ini_set('display_errors', 'On');
+            ini_set('display_errors', 'Off');
             error_reporting(0);
         }
 
@@ -126,6 +126,8 @@ class PecidPHP
         if(($type & error_reporting()) !== $type){
             return;
         }
+
+        file_put_contents(DATA_PATH.'/error_log', $msg);
         
         $levels = array(
             E_ERROR         =>  'Error',

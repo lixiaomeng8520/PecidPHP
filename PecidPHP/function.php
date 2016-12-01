@@ -221,13 +221,18 @@ function thumb_url($src, $w = 640){
 // 加载扩展类.优先加载应用程序的，如果没有，则加载核心的
 function lib($class, $config = array(), $is_singleton = true){
     // 判断类所在位置
-    if(is_file(LIB_PATH.'/'.$class.'.php')){
-        $path = LIB_PATH.'/'.$class.'.php';
-    }elseif(is_file(CORE_PATH.'/lib/'.'PC_'.$class.'.php')){
-        $class = 'PC_'.$class;
-        $path = CORE_PATH.'/lib/'.$class.'.php';
+    if(is_file($class)){
+        $path = $class;
+        $class = basename($class, '.php');
     }else{
-        trigger_error('文件 '.$class.' 找不到', E_USER_ERROR);
+        if(is_file(LIB_PATH.'/'.$class.'.php')){
+            $path = LIB_PATH.'/'.$class.'.php';
+        }elseif(is_file(CORE_PATH.'/lib/'.'PC_'.$class.'.php')){
+            $class = 'PC_'.$class;
+            $path = CORE_PATH.'/lib/'.$class.'.php';
+        }else{
+            trigger_error('文件 '.$class.' 找不到', E_USER_ERROR);
+        }
     }
 
     require_once($path);
@@ -244,7 +249,14 @@ function lib($class, $config = array(), $is_singleton = true){
     }else{
         return new $class($config);
     }
-    
+}
+
+function lib_db($config = array(), $is_singleton = true){
+    $config = $config ? $config : (Conf('db') ? Conf('db') : array());
+    $path = CORE_PATH.'/lib/db/PC_'.$config['driver'].'.php';
+    require_once(CORE_PATH.'/lib/PC_Db.php');
+    require_once(CORE_PATH.'/lib/db/PC_'.$config['driver'].'.php');
+    return lib($path, $config, $is_singleton);
 }
 
 ?>

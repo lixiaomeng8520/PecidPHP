@@ -120,13 +120,23 @@ class TestController extends PC_Controller{
 
 	public function testPagination(){
 		$pagination = lib('Pagination');
-		$pagination->show(11, 101);
+		echo $pagination->show(3, 25);
 	}
 
 	public function testMysql(){
-		$db = lib('Db');
-		$sql = $db->_parse_sql('select * from table where id = ? and uid in ?', array(array(10, 11)));
-		debug($sql);
+		$db = lib_db();
+		// $ret = $db->query('select * from t_news where id = ?', array(1));
+		// debug($db->affectedRows());
+
+		// $ret = $db->update('test', array('username'=>'lxm', 'mobile'=>1, 'realname'=>'lixiaomeng'), array('username'=>'3'));
+		// debug($ret);
+
+		// $ret = $db->getOne('select count(*) from test where username=?', array('lxm'));
+		$data = array(
+			'username'	=>	'~!@#$%^&*()\'"?',
+		);
+		$db->insert('test', $data);
+		debug($db->insertId());
 	}
 }
 
