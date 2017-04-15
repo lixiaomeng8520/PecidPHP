@@ -95,7 +95,7 @@ return array(
 		'allow_extension'		=>	array('jpg'),
 		'allow_mine_type'	=>	array('image/jpg', 'image/jpeg'),
 		'max_size'			=>	2000000, // byte; 2mb
-		'file_name'			=>	'file',
+		'file_name'			=>	'imgFile',
 	),
 
 	'db_driver'	=>	'Mysql',

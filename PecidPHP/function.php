@@ -150,15 +150,15 @@ function random($namespace = '') {
     return $hash;
 }
 
-function debug($data){
+function debug(){
     echo '<pre>';
-    var_dump($data);
+    array_map('var_dump', func_get_args());
     echo '</pre>';
     exit;
 }
-function dump($data){
+function dump(){
     echo '<pre>';
-    var_dump($data);
+    array_map('var_dump', func_get_args());
     echo '</pre>';
 }
 

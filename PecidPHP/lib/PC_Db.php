@@ -2,26 +2,31 @@
 abstract class PC_Db extends PC_Lib{
 	/**
 	 * 数据库标识
+	 * @var null|resource
 	 */
 	protected $_link = null;
 
 	/**
 	 * sql数组
+	 * @var array
 	 */
 	protected $_sqls = array();
 
 	/**
-	 * 站位符
+	 * 绑定查询使用的占位符
+	 * @var string
 	 */
 	protected $_marker = '?';
 
 	/**
 	 * 字段保护符
+	 * @var string
 	 */
 	protected $_escape_column_char = '"';
 
 	/**
 	 * 数据库配置
+	 * @var array
 	 */
 	protected $_config = array(
 		'driver'		=>	'Mysqli', // 驱动
@@ -35,7 +40,11 @@ abstract class PC_Db extends PC_Lib{
 	);
 
 	// ----------------------------构造，数据库操作，辅助-----------------------------------------
-
+	/**
+	 * 初始化，并自动连接	
+	 * @param	array
+	 * @return	void
+	 */
 	public function __construct($config){
 		parent::__construct($config);
 		$this->connect();
@@ -43,7 +52,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 连接数据库
-	 * @return mixed 成功返回资源对象，失败返回false
+	 * @return bool
 	 */
 	public function connect(){
 		return $this->_connect();
@@ -52,7 +61,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 重连数据库
-	 * @return bool true成功，false失败
+	 * @return bool
 	 */
 	public function reConnect(){
 		return $this->_reConnect();
@@ -62,7 +71,7 @@ abstract class PC_Db extends PC_Lib{
 	/**
 	 * 选择数据库
 	 * @param string 数据库名
-	 * @return bool true成功，false失败
+	 * @return bool
 	 */
 	public function selectDb($dbname){
 		return $this->_selectDb();
@@ -71,7 +80,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 返回影响行数
-	 * @return int 影响的行数
+	 * @return int
 	 */
 	public function affectedRows(){
 		return $this->_affectedRows();
@@ -80,7 +89,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 返回自增ID
-	 * @return int 自增的ID
+	 * @return int
 	 */
 	public function insertId(){
 		return $this->_insertId();
@@ -89,31 +98,36 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 返回最后一条错误
-	 * @return string 错误信息
+	 * @return string
 	 */
 	public function getError(){
 		return $this->_getError();
 	}
 	abstract protected function _getError();
 
+	/**
+	 * 返回所有执行过的sql
+	 * @return array
+	 */
+	public function getSqls(){
+		return $this->_sqls;
+	}
+
 
 	// ----------------------------执行SQL-----------------------------------------
 
 	/**
-	 * 执行一个sql
+	 * 执行一个绑定sql
 	 * 如果是读操作，返回一个资源对象
 	 * 如果是写操作，返回true
 	 * 如果失败，返回false
 	 * @param string sql字符串
 	 * @param array 绑定的数据
 	 * @return mixed
-	**/
+	 */
 	public function bindQuery($sql, $bind_data = array()){
-		if(!is_string($sql) || ($sql = trim($sql)) == ''){
-			trigger_error('sql不能为空', E_USER_ERROR);
-		}
-		if(!is_array($bind_data)){
-			trigger_error('bind_data应为数组', E_USER_ERROR);
+		if(!is_string($sql) || ($sql = trim($sql)) == '' || !is_array($bind_data)){
+			trigger_error('参数错误', E_USER_ERROR);
 		}
 
 		// 判断sql中的marker数和bind_data元素数是否匹配
@@ -147,9 +161,8 @@ abstract class PC_Db extends PC_Lib{
 	 * 如果是写操作，返回true
 	 * 如果失败，返回false
 	 * @param string sql字符串
-	 * @param array 绑定的数据
 	 * @return mixed
-	**/
+	 */
 	public function query($sql){
 		if(!is_string($sql) || ($sql = trim($sql)) == ''){
 			trigger_error('参数错误', E_USER_ERROR);
@@ -172,9 +185,10 @@ abstract class PC_Db extends PC_Lib{
 	// ----------------------------处理输入-----------------------------------------
 
 	/**
-	 * 转义
-	 * @param mixed 要转义的对象，如果是array，则递归
-	**/
+	 * 要转义的对象，如果是array，则递归
+	 * @param mixed
+	 * @return mixed
+	 */
 	protected function _escapeValue($str){
 		if(is_int($str) || is_float($str)){
 			return $str;
@@ -192,6 +206,8 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 对字段名进行处理
+	 * @param string
+	 * @return string
 	 */
 	protected function _escapeColumn($str){
 		return $this->_escape_column_char.$str.$this->_escape_column_char;
@@ -199,16 +215,18 @@ abstract class PC_Db extends PC_Lib{
 
 
 	/**
-	 * 转义字符串特殊字符。需要被重写
+	 * 转义字符串
 	 * @param string 要转义的字符串
-	 * @return string 转义过的字符串
-	**/
+	 * @return string
+	 */
 	abstract protected function _escapeStr($str);
 
 	// ----------------------------处理结果-----------------------------------------
 
 	/**
-	 * 处理结果集
+	 * 处理结果集，返回数组
+	 * @param resource 结果资源
+	 * @return array
 	 */
 	abstract protected function _fetchArray($result);
 
@@ -227,7 +245,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 获取结果数组的第一条
-	 * @param mixed array,null
+	 * @return mixed array|null
 	 */
 	public function getRow($sql, $bind_data = array()){
 		$rows = $this->getRows($sql, $bind_data);
@@ -236,7 +254,7 @@ abstract class PC_Db extends PC_Lib{
 
 	/**
 	 * 获取结果数组第一条的第一个字段
-	 * @param mixed string,null
+	 * @return mixed string|null
 	 */
 	public function getOne($sql, $bind_data = array()){
 		$row = $this->getRow($sql, $bind_data);
